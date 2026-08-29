@@ -1,0 +1,8 @@
+## Interface: 70300
+## Title: PZW Recruitment
+## Version: 0.1
+## Author: Ruszczka
+## SavedVariables: PZW_LastSendTime, PZW_Settings
+
+PZWRecruit.lua
+PZWRecruitOptions.lua
