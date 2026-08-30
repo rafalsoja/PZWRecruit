@@ -1,6 +1,6 @@
 ## Interface: 70300
 ## Title: PZW Recruitment
-## Version: 0.1
+## Version: 0.1.1
 ## Author: Ruszczka
 ## SavedVariables: PZW_LastSendTime, PZW_Settings
 
