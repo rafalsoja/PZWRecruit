@@ -13,10 +13,10 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
 
     local msgScroll = CreateFrame("ScrollFrame", "PZWRecruitMsgScroll", panel, "UIPanelScrollFrameTemplate")
     msgScroll:SetPoint("TOPLEFT", msgLabel, "BOTTOMLEFT", 0, -8)
-    msgScroll:SetSize(350, 100)
+    msgScroll:SetSize(350, 80)
 
     local msgBox = CreateFrame("EditBox", nil, msgScroll)
-    msgBox:SetSize(350, 100)
+    msgBox:SetSize(350, 80)
     msgBox:SetMultiLine(true)
     msgBox:SetAutoFocus(false)
     msgBox:SetFontObject("ChatFontNormal")
@@ -38,7 +38,7 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
 
     -- 2. Channel name
     local chanLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    chanLabel:SetPoint("TOPLEFT", msgScroll, "BOTTOMLEFT", 0, -20)
+    chanLabel:SetPoint("TOPLEFT", msgScroll, "BOTTOMLEFT", 0, -16)
     chanLabel:SetText("Channel name (e.g. PZWTest or Global):")
 
     local chanBox = CreateFrame("EditBox", nil, panel, "InputBoxTemplate")
@@ -48,7 +48,7 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
 
     -- 3. Interval
     local intLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    intLabel:SetPoint("TOPLEFT", chanBox, "BOTTOMLEFT", -5, -16)
+    intLabel:SetPoint("TOPLEFT", chanBox, "BOTTOMLEFT", -5, -12)
     intLabel:SetText("Send interval (in minutes):")
 
     local intBox = CreateFrame("EditBox", nil, panel, "InputBoxTemplate")
@@ -57,11 +57,24 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
     intBox:SetAutoFocus(false)
     intBox:SetNumeric(true)
 
+    -- 4. Faction Checkboxes with custom colors
+    local allyCheck = CreateFrame("CheckButton", "PZW_AllyCheck", panel, "UICheckButtonTemplate")
+    allyCheck:SetPoint("TOPLEFT", intBox, "BOTTOMLEFT", -5, -12)
+    local allyText = _G[allyCheck:GetName() .. "Text"]
+    allyText:SetText("Enable for Alliance characters")
+    allyText:SetTextColor(0, 0.68, 1) -- Niebieski (Alliance)
+
+    local hordeCheck = CreateFrame("CheckButton", "PZW_HordeCheck", panel, "UICheckButtonTemplate")
+    hordeCheck:SetPoint("TOPLEFT", allyCheck, "BOTTOMLEFT", 0, -4)
+    local hordeText = _G[hordeCheck:GetName() .. "Text"]
+    hordeText:SetText("Enable for Horde characters")
+    hordeText:SetTextColor(1, 0.2, 0.2) -- Czerwony (Horde)
+
     -- Last send status
     local statusLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-    statusLabel:SetPoint("TOPLEFT", intBox, "BOTTOMLEFT", -5, -20)
+    statusLabel:SetPoint("TOPLEFT", hordeCheck, "BOTTOMLEFT", 0, -12)
 
-    -- Load stored settings into input boxes and update status label
+    -- Load values into UI
     local function LoadValues()
         msgBox:SetText(PZW_Settings.message or defaultSettings.message)
         msgBox:SetCursorPosition(0)
@@ -72,6 +85,9 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
         intBox:SetText(tostring(PZW_Settings.interval or defaultSettings.interval))
         intBox:SetCursorPosition(0)
 
+        allyCheck:SetChecked(PZW_Settings.enableAlliance ~= false)
+        hordeCheck:SetChecked(PZW_Settings.enableHorde ~= false)
+
         if PZW_LastSendTime and PZW_LastSendTime > 0 then
             local formattedTime = date("%Y-%m-%d %H:%M:%S", PZW_LastSendTime)
             local diffMinutes = math.floor((time() - PZW_LastSendTime) / 60)
@@ -81,10 +97,12 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
         end
     end
 
-    -- Save input values to settings
+    -- Save UI values
     local function SaveValues()
         PZW_Settings.message = msgBox:GetText()
         PZW_Settings.channel = chanBox:GetText()
+        PZW_Settings.enableAlliance = allyCheck:GetChecked()
+        PZW_Settings.enableHorde = hordeCheck:GetChecked()
         
         local val = tonumber(intBox:GetText())
         if val and val > 0 then
@@ -94,14 +112,14 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
         LoadValues()
     end
 
-    -- 1. Save Button
+    -- Save Button
     local saveBtn = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
-    saveBtn:SetPoint("TOPLEFT", statusLabel, "BOTTOMLEFT", 0, -15)
+    saveBtn:SetPoint("TOPLEFT", statusLabel, "BOTTOMLEFT", 0, -12)
     saveBtn:SetSize(100, 25)
     saveBtn:SetText("Save")
     saveBtn:SetScript("OnClick", SaveValues)
 
-    -- 2. Send Now Button (Saves settings + fires announcement + resets timer)
+    -- Send Now Button
     local sendBtn = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
     sendBtn:SetPoint("LEFT", saveBtn, "RIGHT", 10, 0)
     sendBtn:SetSize(100, 25)
