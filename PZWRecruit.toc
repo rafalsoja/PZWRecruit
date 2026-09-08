@@ -1,8 +1,9 @@
 ## Interface: 70300
-## Title: PZW Recruitment
-## Version: 0.1.1
-## Author: Ruszczka
-## SavedVariables: PZW_LastSendTime, PZW_Settings
+## Title: |cff00aeefPZW|r |cffffd100Recruitment|r
+## Notes: Automated guild recruitment broadcasts and message counter.
+## Version: 0.2
+## Author: Ruszczka-evermoon
+## SavedVariables: PZW_LastSendTime, PZW_Settings, PZW_Stats
 
 PZWRecruit.lua
 PZWRecruitOptions.lua

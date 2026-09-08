@@ -1,3 +1,5 @@
+local PREFIX = "|cff00aeef[PZWRecruit]|r "
+
 function PZWRecruit_CreateOptionsPanel(defaultSettings)
     local panel = CreateFrame("Frame", "PZWRecruitOptionsPanel", InterfaceOptionsFramePanelContainer)
     panel.name = "PZW Recruitment"
@@ -6,7 +8,7 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
     title:SetPoint("TOPLEFT", 16, -16)
     title:SetText("PZW Recruitment - Options")
 
-    -- 1. Message text (Multi-line)
+    -- 1. Message text
     local msgLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     msgLabel:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -16)
     msgLabel:SetText("Announcement message:")
@@ -24,7 +26,6 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
 
     msgScroll:SetScrollChild(msgBox)
 
-    -- Background for multi-line EditBox
     local msgBg = CreateFrame("Frame", nil, msgScroll, "BackdropTemplate")
     msgBg:SetPoint("TOPLEFT", msgScroll, -5, 5)
     msgBg:SetPoint("BOTTOMRIGHT", msgScroll, 25, -5)
@@ -57,24 +58,26 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
     intBox:SetAutoFocus(false)
     intBox:SetNumeric(true)
 
-    -- 4. Faction Checkboxes with custom colors
+    -- 4. Faction Checkboxes
     local allyCheck = CreateFrame("CheckButton", "PZW_AllyCheck", panel, "UICheckButtonTemplate")
     allyCheck:SetPoint("TOPLEFT", intBox, "BOTTOMLEFT", -5, -12)
     local allyText = _G[allyCheck:GetName() .. "Text"]
     allyText:SetText("Enable for Alliance characters")
-    allyText:SetTextColor(0, 0.68, 1) -- Niebieski (Alliance)
+    allyText:SetTextColor(0, 0.68, 1)
 
     local hordeCheck = CreateFrame("CheckButton", "PZW_HordeCheck", panel, "UICheckButtonTemplate")
     hordeCheck:SetPoint("TOPLEFT", allyCheck, "BOTTOMLEFT", 0, -4)
     local hordeText = _G[hordeCheck:GetName() .. "Text"]
     hordeText:SetText("Enable for Horde characters")
-    hordeText:SetTextColor(1, 0.2, 0.2) -- Czerwony (Horde)
+    hordeText:SetTextColor(1, 0.2, 0.2)
 
-    -- Last send status
+    -- Status & Stats Labels
     local statusLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     statusLabel:SetPoint("TOPLEFT", hordeCheck, "BOTTOMLEFT", 0, -12)
 
-    -- Load values into UI
+    local statsSentLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    statsSentLabel:SetPoint("TOPLEFT", statusLabel, "BOTTOMLEFT", 0, -10)
+
     local function LoadValues()
         msgBox:SetText(PZW_Settings.message or defaultSettings.message)
         msgBox:SetCursorPosition(0)
@@ -95,9 +98,10 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
         else
             statusLabel:SetText("Last sent: No data (not sent yet)")
         end
+
+        statsSentLabel:SetText("Total messages sent: " .. (PZW_Stats and PZW_Stats.sentMessages or 0))
     end
 
-    -- Save UI values
     local function SaveValues()
         PZW_Settings.message = msgBox:GetText()
         PZW_Settings.channel = chanBox:GetText()
@@ -108,13 +112,13 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
         if val and val > 0 then
             PZW_Settings.interval = val
         end
-        print("[PZWRecruit] Settings saved successfully.")
+        print(PREFIX .. "Settings saved successfully.")
         LoadValues()
     end
 
     -- Save Button
     local saveBtn = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
-    saveBtn:SetPoint("TOPLEFT", statusLabel, "BOTTOMLEFT", 0, -12)
+    saveBtn:SetPoint("TOPLEFT", statsSentLabel, "BOTTOMLEFT", 0, -16)
     saveBtn:SetSize(100, 25)
     saveBtn:SetText("Save")
     saveBtn:SetScript("OnClick", SaveValues)
@@ -131,9 +135,19 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
         end
     end)
 
+    -- Reset Counter Button
+    local resetBtn = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+    resetBtn:SetPoint("LEFT", sendBtn, "RIGHT", 10, 0)
+    resetBtn:SetSize(100, 25)
+    resetBtn:SetText("Reset Counter")
+    resetBtn:SetScript("OnClick", function()
+        PZW_Stats.sentMessages = 0
+        LoadValues()
+        print(PREFIX .. "Sent counter reset.")
+    end)
+
     LoadValues()
 
-    -- WoW options panel integration
     panel.refresh = LoadValues
     panel.okay = SaveValues
     panel.default = function()
@@ -144,7 +158,6 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
     InterfaceOptions_AddCategory(panel)
 end
 
--- Slash command registration
 SLASH_PZWRECRUIT1 = "/pzw"
 SlashCmdList["PZWRECRUIT"] = function()
     if not InterfaceOptionsFrame:IsShown() then
