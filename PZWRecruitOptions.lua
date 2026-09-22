@@ -26,7 +26,7 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
 
     msgScroll:SetScrollChild(msgBox)
 
-    local msgBg = CreateFrame("Frame", nil, msgScroll, "BackdropTemplate")
+    local msgBg = CreateFrame("Frame", nil, msgScroll)
     msgBg:SetPoint("TOPLEFT", msgScroll, -5, 5)
     msgBg:SetPoint("BOTTOMRIGHT", msgScroll, 25, -5)
     msgBg:SetBackdrop({
@@ -75,8 +75,11 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
     local statusLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     statusLabel:SetPoint("TOPLEFT", hordeCheck, "BOTTOMLEFT", 0, -12)
 
+    local senderLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    senderLabel:SetPoint("TOPLEFT", statusLabel, "BOTTOMLEFT", 0, -4)
+
     local statsSentLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    statsSentLabel:SetPoint("TOPLEFT", statusLabel, "BOTTOMLEFT", 0, -10)
+    statsSentLabel:SetPoint("TOPLEFT", senderLabel, "BOTTOMLEFT", 0, -10)
 
     local function LoadValues()
         msgBox:SetText(PZW_Settings.message or defaultSettings.message)
@@ -93,10 +96,14 @@ function PZWRecruit_CreateOptionsPanel(defaultSettings)
 
         if PZW_LastSendTime and PZW_LastSendTime > 0 then
             local formattedTime = date("%Y-%m-%d %H:%M:%S", PZW_LastSendTime)
-            local diffMinutes = math.floor((time() - PZW_LastSendTime) / 60)
+            local diffSeconds = math.max(0, time() - PZW_LastSendTime)
+            local diffMinutes = math.floor(diffSeconds / 60)
+            
             statusLabel:SetText("Last sent: " .. formattedTime .. " (" .. diffMinutes .. " min ago)")
+            senderLabel:SetText("Sent by: " .. tostring(PZW_LastSender or "N/A"))
         else
             statusLabel:SetText("Last sent: No data (not sent yet)")
+            senderLabel:SetText("Sent by: N/A")
         end
 
         statsSentLabel:SetText("Total messages sent: " .. (PZW_Stats and PZW_Stats.sentMessages or 0))

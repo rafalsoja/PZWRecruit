@@ -1,9 +1,9 @@
 ## Interface: 70300
-## Title: |cff00aeefPZW|r |cffffd100Recruitment|r
-## Notes: Automated guild recruitment broadcasts and message counter.
-## Version: 0.2
-## Author: Ruszczka-evermoon
-## SavedVariables: PZW_LastSendTime, PZW_Settings, PZW_Stats
+## Title: PZWRecruit
+## Notes: Recruitment addon for PZW
+## Author: Andrew
+## Version: 1.1
+## SavedVariables: PZW_Settings, PZW_Stats, PZW_LastSendTime, PZW_LastSender
 
 PZWRecruit.lua
 PZWRecruitOptions.lua
