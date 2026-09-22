@@ -20,3 +20,7 @@ Automated recruitment announcement addon for World of Warcraft (Legion 7.3.5 / T
 * Type `/pzw` in chat or navigate to **Interface -> AddOns -> PZW Recruitment** to configure the addon.
 * Set your preferred channel name, recruitment message, and interval.
 * Enable the addon for your current faction (Alliance/Horde).
+
+## Showcase
+
+![addon image lol](https://i.imgur.com/sW4DeKz.png)
