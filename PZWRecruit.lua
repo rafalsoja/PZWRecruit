@@ -16,6 +16,7 @@ local ADDON_PREFIX = "PZWRecruit"
 PZWRecruitFrame = CreateFrame("Frame")
 local recruitTicker = nil
 local syncTicker = nil
+local isInitialSyncPending = true
 
 local registerSuccess = RegisterAddonMessagePrefix(ADDON_PREFIX)
 
@@ -88,6 +89,7 @@ function PZWRecruit_RestartTicker()
     end
 
     recruitTicker = C_Timer.NewTicker(30, function()
+        if isInitialSyncPending then return end
         if PZW_LastSendTime == nil or PZW_Settings == nil then return end
         if not IsFactionEnabled() then return end
 
@@ -131,6 +133,14 @@ PZWRecruitFrame:SetScript("OnEvent", function(self, event, ...)
 
         PZWRecruit_RestartTicker()
 
+        if IsInGuild() then
+            SendAddonMessage(ADDON_PREFIX, "REQ_SYNC", "GUILD")
+        end
+
+        C_Timer.After(10, function()
+            isInitialSyncPending = false
+        end)
+
     elseif event == "CHAT_MSG_ADDON" then
         local prefix, message, channel, sender = ...
         
@@ -143,6 +153,14 @@ PZWRecruitFrame:SetScript("OnEvent", function(self, event, ...)
 
         if string.lower(cleanSender) == string.lower(cleanPlayer) then 
             return 
+        end
+
+        if message == "REQ_SYNC" then
+            if PZW_LastSendTime and PZW_LastSendTime > 0 and IsInGuild() then
+                local payload = tostring(PZW_LastSendTime) .. ":" .. tostring(PZW_LastSender or playerName)
+                SendAddonMessage(ADDON_PREFIX, payload, "GUILD")
+            end
+            return
         end
 
         local remoteTimeStr, senderFromPayload = string.match(message, "^(%d+):?(.*)$")
