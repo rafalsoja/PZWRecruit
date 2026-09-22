@@ -15,6 +15,7 @@ local ADDON_PREFIX = "PZWRecruit"
 
 PZWRecruitFrame = CreateFrame("Frame")
 local recruitTicker = nil
+local syncTicker = nil
 
 local registerSuccess = RegisterAddonMessagePrefix(ADDON_PREFIX)
 
@@ -81,6 +82,11 @@ function PZWRecruit_RestartTicker()
         recruitTicker = nil
     end
 
+    if syncTicker then
+        syncTicker:Cancel()
+        syncTicker = nil
+    end
+
     recruitTicker = C_Timer.NewTicker(30, function()
         if PZW_LastSendTime == nil or PZW_Settings == nil then return end
         if not IsFactionEnabled() then return end
@@ -90,6 +96,14 @@ function PZWRecruit_RestartTicker()
 
         if (currentTime - PZW_LastSendTime) >= intervalInSeconds then
             PZWRecruit_SendAnnouncement()
+        end
+    end)
+
+    syncTicker = C_Timer.NewTicker(300, function()
+        if PZW_LastSendTime and PZW_LastSendTime > 0 and IsInGuild() then
+            local playerName = UnitName("player")
+            local payload = tostring(PZW_LastSendTime) .. ":" .. tostring(PZW_LastSender or playerName)
+            SendAddonMessage(ADDON_PREFIX, payload, "GUILD")
         end
     end)
 end
